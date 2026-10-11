@@ -1,0 +1,9 @@
+# ---------------- Se ignora todo menos el código ----------------
+*
+
+# ---------------- Excepciones: archivos que sí se suben ----------------
+!.gitignore
+!*.ino
+!*.cpp
+!*.h
+!*.c
