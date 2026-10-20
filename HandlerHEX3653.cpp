@@ -26,7 +26,7 @@ void hexpins_init(){
   digitalWrite(S_DOWN, HIGH);
   digitalWrite(ON_OFF, HIGH);
 
-  Serial.println("[HEX3653] Pines configurados (D0:PSW, D3:SEEK-, D8:SEEK+).");
+  Serial.println("[HEX3653] Pines configurados (D4:PSW, D3:SEEK-, D8:SEEK+).");
 }
 
 void hexHTTP_init()

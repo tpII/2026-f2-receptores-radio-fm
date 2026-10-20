@@ -5,24 +5,27 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 
-// ---------------- Pin del multiplexor CD4052 ----------------
-// D4 = LOW  -> canal X0 (audio de la TEA5767)
-// D4 = HIGH -> canal X1 (audio de la HEX3653)
-// B (pata 9) e INH (pata 6) van a GND
-#define PIN_MUX_SEL 2 // D4
+// ---------------- Pin del relé (módulo HL-51, Songle SRD-05VDC-SL-C) ----------------
+// El módulo se activa por nivel BAJO y para soltarse necesita ~5V en IN (el ESP8266 solo da 3,3V):
+// D0 como entrada (suelto) -> el módulo sube IN a 5V, relé apagado, COM unido a NC (audio de la HEX3653)
+// D0 como salida en LOW    -> relé activado, COM unido a NO (audio de la TEA5767)
+// Con D0 suelto el pin queda expuesto a ~5V, por encima de lo que garantiza el ESP8266.
+// VCC del módulo a VIN (5V), GND a GND, IN a D0.
+// No se usa D4 (GPIO2): la entrada del módulo lo tira a LOW y el ESP8266 no arranca.
+#define PIN_RELE 16 // D0
 
 // ---------------- Radios seleccionables ----------------
 enum RadioActiva { RADIO_TEA = 0, RADIO_HEX = 1 };
 
 extern ESP8266WebServer server;
 
-// ---------------- Multiplexor ----------------
-void mux_init();
+// ---------------- Relé ----------------
+void rele_init();
 void select_radio(RadioActiva radio);
 
 // ---------------- Handlers ----------------
 void handleRoot();
-void handleMux();
+void handleRadio();
 
 // ---------------- Funciones de inicialización ----------------
 void HTTP_init();

@@ -6,16 +6,16 @@
 void setup() {
   Serial.begin(115200);
 
-  mux_init();     // CD4052 (D4), arranca en la TEA
+  rele_init();    // Relé HL-51 (D0), arranca apagado con la HEX
   potfunc_init(); // X9C103S (D5, D6, D7), calibra y deja el volumen al 50%
-  hexpins_init(); // HEX3653 (D0, D3, D8)
+  hexpins_init(); // HEX3653 (D4, D3, D8)
   teafunc_init(); // TEA5767 por I2C (D1, D2)
 
   HTTP_init();
 }
 
 // ---------------- Comandos de prueba por Monitor Serie ----------------
-// 't' / 'h'  -> conmuta el multiplexor a la TEA / HEX
+// 't' / 'h'  -> conmuta el relé a la TEA / HEX
 // '0'..'9'   -> volumen 0% .. 90%
 // 's'        -> alterna el standby del TEA
 // 'u'        -> Seek ↑ del TEA

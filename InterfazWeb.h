@@ -145,7 +145,7 @@ const char index_html[] PROGMEM = R"rawliteral(
       <div class="selector">
         <label for="sel-radio">Radio:</label>
         <select id="sel-radio">
-          <option value="hex">HEX3653</option>
+          <option value="hex" selected>HEX3653</option>
           <option value="tea">TEA5767</option>
         </select>
         <div class="sel-msg" id="sel-msg"></div>
@@ -163,7 +163,7 @@ const char index_html[] PROGMEM = R"rawliteral(
         <div class="grid">
           <button class="btn" onclick="enviarPulsoHEX('s_up')">S_UP (D8)</button>
           <button class="btn" onclick="enviarPulsoHEX('s_down')">S_DOWN (D3)</button>
-          <button class="btn" onclick="enviarPulsoHEX('on_off')">ON/OFF (D0)</button>
+          <button class="btn" onclick="enviarPulsoHEX('on_off')">ON/OFF (D4)</button>
         </div>
       </section>
 
@@ -211,7 +211,6 @@ const char index_html[] PROGMEM = R"rawliteral(
     </footer>
 
     <script>
-      const STORAGE_KEY = 'radioActiva'; // Última radio elegida, guardada en el navegador
       let ultimaFreq = 87.5;
       let teaTimer = null;
 
@@ -305,7 +304,7 @@ const char index_html[] PROGMEM = R"rawliteral(
         }
       }
 
-      // -------- Selección de radio (multiplexor CD4052) --------
+      // -------- Selección de radio (relé HL-51) --------
       let radioActual = null;
 
       // Muestra el panel de la radio indicada (solo interfaz, no toca el hardware)
@@ -315,7 +314,6 @@ const char index_html[] PROGMEM = R"rawliteral(
         document.getElementById('panel-hex').classList.toggle('hidden', esTea);
         document.getElementById('panel-tea').classList.toggle('hidden', !esTea);
         document.getElementById('sel-radio').value = radio;
-        try { localStorage.setItem(STORAGE_KEY, radio); } catch (e) {}
         if (esTea) {
           document.getElementById('status-msg').textContent = 'Cargando estado…';
           cargarEstadoTEA();
@@ -327,10 +325,10 @@ const char index_html[] PROGMEM = R"rawliteral(
       }
 
       // Pide al ESP8266 la radio activa (o la cambia si se indica una); devuelve 'tea' o 'hex'
-      function pedirMux(radio) {
+      function pedirRadio(radio) {
         const ctrl = new AbortController();
         const t = setTimeout(() => ctrl.abort(), 2000); // Sin respuesta en 2 s se toma como error
-        const url = radio ? '/mux?radio=' + radio : '/mux';
+        const url = radio ? '/radio?radio=' + radio : '/radio';
         return fetch(url, { signal: ctrl.signal })
           .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
           .then(txt => {
@@ -341,28 +339,28 @@ const char index_html[] PROGMEM = R"rawliteral(
           .finally(() => clearTimeout(t));
       }
 
-      // Conmuta el CD4052 y cambia el panel solo cuando el ESP8266 lo confirma
+      // Conmuta el relé y cambia el panel solo cuando el ESP8266 lo confirma
       function seleccionarRadio(radio) {
         const sel = document.getElementById('sel-radio');
         const msg = document.getElementById('sel-msg');
         sel.disabled = true;
         msg.textContent = '';
-        return pedirMux(radio)
+        return pedirRadio(radio)
           .then(activa => {
             mostrarRadio(activa);
             if (activa !== radio) msg.textContent = 'No se pudo cambiar de radio, intentá de nuevo';
           })
           .catch(err => {
-            console.error('ERR mux:', err);
+            console.error('ERR radio:', err);
             msg.textContent = 'No se pudo cambiar de radio, intentá de nuevo';
             if (radioActual) {
               sel.value = radioActual; // Vuelve a la radio que estaba sonando
               return;
             }
             // Primera carga: se pregunta qué radio está sonando realmente
-            return pedirMux()
+            return pedirRadio()
               .then(mostrarRadio)
-              .catch(() => mostrarRadio('tea')); // Sin conexión: la radio con la que arranca la placa
+              .catch(() => mostrarRadio('hex')); // Sin conexión: la radio con la que arranca la placa
           })
           .finally(() => { sel.disabled = false; });
       }
@@ -405,10 +403,11 @@ const char index_html[] PROGMEM = R"rawliteral(
       // -------- Inicio --------
       window.addEventListener('DOMContentLoaded', () => {
         iniciarVolumen();
-        let sel = 'tea'; // Por defecto, la radio con la que arranca la placa
-        try { sel = localStorage.getItem(STORAGE_KEY) || 'tea'; } catch (e) {}
         document.getElementById('sel-radio').addEventListener('change', e => seleccionarRadio(e.target.value));
-        seleccionarRadio(sel);
+        // Se muestra la radio que está sonando según el ESP8266, sin conmutar el relé
+        pedirRadio()
+          .then(mostrarRadio)
+          .catch(() => mostrarRadio('hex')); // Sin conexión: la radio con la que arranca la placa
       });
     </script>
   </body>
