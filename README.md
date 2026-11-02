@@ -90,13 +90,13 @@ El sistema integra dos receptores de radio de distinta arquitectura: el **TEA576
 
 3. Configurar la placa en el menú Herramientas:
 
-  * Placa: NodeMCU 1.0 (ESP-12E Module)
+   * Placa: NodeMCU 1.0 (ESP-12E Module)
 
-  * CPU Frequency: 80 MHz
+   * CPU Frequency: 80 MHz
 
-  * Flash Size: 4MB (FS:2MB)
+   * Flash Size: 4MB (FS:2MB)
 
-  * Puerto: Seleccionar el puerto COM asignado al ESP8266.
+   * Puerto: Seleccionar el puerto COM asignado al ESP8266.
 
 4. Conectar la placa por USB y presionar Subir (Ctrl + U).
 
