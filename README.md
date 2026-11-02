@@ -115,17 +115,6 @@ El sistema integra dos receptores de radio de distinta arquitectura: el **TEA576
    * **Panel HEX3653:** Botones para enviar impulsos `S_UP` (D8), `S_DOWN` (D3) y `ON/OFF` (D4).
 
 
-## 🖥️ Comandos de Control por Monitor Serie
-
-Con el **Monitor Serie** abierto a **115200 baudios**, se pueden enviar comandos directos:
-
-* `t` : Conmuta el relé hacia la radio **TEA5767** (`D0 = LOW`).
-* `h` : Conmuta el relé hacia la radio **HEX3653** (`D0 = INPUT`).
-* `0` a `9` : Ajusta el volumen del X9C103S del 0% al 90%.
-* `s` : Alterna el modo *Standby* del sintonizador TEA5767.
-* `u` : Realiza un *Seek $\uparrow$* en el TEA5767.
-
-
 ## 👥 Autores y Créditos
 
 **Grupo F2 — Taller de Proyecto II (2026)**  
