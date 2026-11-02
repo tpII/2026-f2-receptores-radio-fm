@@ -10,7 +10,7 @@ Taller de Proyecto II 2026 — Grupo F2 — Receptores de Radio FM HEX3653 y TEA
 
 Este repositorio contiene el firmware y la documentación técnica para el **Sistema de Radio FM Dual** desarrollado para la asignatura **Taller de Proyecto II** de la Facultad de Informática de la **Universidad Nacional de La Plata (UNLP)**.
 
-El sistema integra dos receptores de radio de distinta arquitectura: el **TEA5767** (controlado por el bus I2C) y el **HEX3653** (controlado por impulsos GPIO). La selección de canal se realiza mediante un módulo de relé electromecánico **HL-51**[cite: 21], con control digital de volumen a través del potenciómetro **X9C103S**[cite: 5], amplificación con la etapa **PAM8403**[cite: 5] y gestión remota mediante una interfaz web embebida servida en un Access Point propio generado por el **ESP8266**.
+El sistema integra dos receptores de radio de distinta arquitectura: el **TEA5767** y el **HEX3653**. La selección de canal se realiza mediante un módulo de relé electromecánico **HL-51**, con control digital de volumen a través del potenciómetro **X9C103S**, amplificación con la etapa **PAM8403** y gestión remota mediante una interfaz web embebida servida en un Access Point propio generado por el **ESP8266**.
 
 ---
 
