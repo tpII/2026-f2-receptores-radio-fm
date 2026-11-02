@@ -12,7 +12,6 @@ Este repositorio contiene el firmware y la documentación técnica para el **Sis
 
 El sistema integra dos receptores de radio de distinta arquitectura: el **TEA5767** y el **HEX3653**. La selección de canal se realiza mediante un módulo de relé electromecánico **HL-51**, con control digital de volumen a través del potenciómetro **X9C103S**, amplificación con la etapa **PAM8403** y gestión remota mediante una interfaz web embebida servida en un Access Point propio generado por el **ESP8266**.
 
----
 
 ## 📂 Estructura del Repositorio
 ```text
@@ -27,7 +26,6 @@ El sistema integra dos receptores de radio de distinta arquitectura: el **TEA576
 └── README.md                 # Documentación principal del proyecto
 ```
 
----
 
 ## 🛠️ Componentes y Materiales
 
@@ -42,7 +40,6 @@ El sistema integra dos receptores de radio de distinta arquitectura: el **TEA576
 | **Parlante Dinámico** | Reproducción de audio ($8\,\Omega$ / $3\text{W}$) | — |
 | **Fuente Externa** | Fuente conmutada regulada de 5V DC / 2A | Red eléctrica |
 
----
 
 ## 🔌 Esquema de Conexiones Físicas (Pinout)
 
@@ -75,7 +72,6 @@ El sistema integra dos receptores de radio de distinta arquitectura: el **TEA576
 
 > ⚠️ **Nota Técnica:** Para evitar problemas de booteo en el ESP8266, la señal `IN` del módulo relé utiliza `D0`. El relé se desactiva poniendo el pin en modo `INPUT` (el pull-up del módulo lleva `IN` a 5V) y se activa configurando `D0` como `OUTPUT` en `LOW`.
 
----
 
 ## 🚀 Instalación y Carga del Firmware
 
@@ -104,11 +100,6 @@ El sistema integra dos receptores de radio de distinta arquitectura: el **TEA576
 
 4. Conectar la placa por USB y presionar Subir (Ctrl + U).
 
----
-
-### 📱 Guía de Uso de la Interfaz Web
-
-```markdown
 ## 📱 Guía de Uso de la Interfaz Web
 
 1. **Conexión al Punto de Acceso (AP):**
@@ -123,7 +114,6 @@ El sistema integra dos receptores de radio de distinta arquitectura: el **TEA576
    * **Panel TEA5767:** Búsqueda automática (*Seek*), sintonía fina de $\pm 0.1\,\text{MHz}$, ingreso directo de frecuencia e indicador visual de nivel de señal.
    * **Panel HEX3653:** Botones para enviar impulsos `S_UP` (D8), `S_DOWN` (D3) y `ON/OFF` (D4).
 
----
 
 ## 🖥️ Comandos de Control por Monitor Serie
 
@@ -135,7 +125,6 @@ Con el **Monitor Serie** abierto a **115200 baudios**, se pueden enviar comandos
 * `s` : Alterna el modo *Standby* del sintonizador TEA5767.
 * `u` : Realiza un *Seek $\uparrow$* en el TEA5767.
 
----
 
 ## 👥 Autores y Créditos
 
