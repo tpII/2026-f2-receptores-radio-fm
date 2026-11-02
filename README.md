@@ -15,7 +15,7 @@ El sistema integra dos receptores de radio de distinta arquitectura: el **TEA576
 ---
 
 ## 📂 Estructura del Repositorio
-
+```text
 2026-f2-receptores-radio-fm/
 ├── F2ProyectoFinal.ino       # Programa principal (setup, loop y comandos por monitor serie)
 ├── HTTPGeneral.cpp / .h       # Servidor HTTP, configuración del AP WiFi y control del relé HL-51
@@ -25,6 +25,7 @@ El sistema integra dos receptores de radio de distinta arquitectura: el **TEA576
 ├── InterfazWeb.h             # Página web interactiva (HTML, CSS, JS asincrónico en PROGMEM)
 ├── TEA5767.cpp / .h           # Librería núcleo para la comunicación I2C con el TEA5767
 └── README.md                 # Documentación principal del proyecto
+```
 
 ---
 
