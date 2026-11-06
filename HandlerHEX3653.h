@@ -9,6 +9,12 @@
 #define S_DOWN 0  // D3 - SEEK-
 #define ON_OFF 2  // D4 - PSW (reposo HIGH, compatible con el arranque del ESP8266)
 
+// ---------------- Encendido automático al arrancar ----------------
+// Poner en 0 para que la HEX no se encienda sola al alimentar el sistema
+#define HEX_ENCENDER_AL_INICIO 1
+#define HEX_T_ARRANQUE   1500 // ms desde el arranque hasta que la HEX acepta pulsos
+#define HEX_T_PULSO_PSW  120  // ms que se mantiene "apretado" PSW
+
 
 // ---------------- Envío de pulso a pin indicado ----------------
 void pulso(int, unsigned int);
@@ -20,6 +26,7 @@ void handleOnOff();
 
 // ---------------- Funciones de inicialización ----------------
 void hexpins_init();
+void hex_encender_al_inicio();
 void hexHTTP_init();
 
 #endif

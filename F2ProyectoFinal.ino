@@ -14,11 +14,14 @@ void setup() {
   presets_init(); // Carga presets desde memoria EEPROM
 
   HTTP_init();
+
+  hex_encender_al_inicio(); // Pulso PSW solo si se alimentó el sistema desde cero
 }
 
 // ---------------- Comandos de prueba por Monitor Serie ----------------
 // 't' / 'h'  -> conmuta el relé a la TEA / HEX
 // '0'..'9'   -> volumen 0% .. 90%
+// '+' / '-'  -> sube / baja 5 puntos la ganancia de la TEA (para igualarla de oído con la HEX)
 // 's'        -> alterna el standby del TEA
 // 'u'        -> Seek ↑ del TEA
 // 'i'        -> imprime el estado del TEA
@@ -33,6 +36,10 @@ void comandosSerie() {
   else if (c >= '0' && c <= '9') {
     pot_set_volume((c - '0') * 10);
     Serial.printf("[X9C103S] Volumen fijado en %d%%.\n", pot_get_volume());
+  }
+  else if (c == '+' || c == '-') {
+    pot_set_ganancia_tea(pot_get_ganancia_tea() + (c == '+' ? 5 : -5));
+    Serial.printf("[X9C103S] Ganancia de la TEA: %d%% (fijarla en TEA_GANANCIA).\n", pot_get_ganancia_tea());
   }
   else if (c == 's') {
     tea_toggle_standby();
