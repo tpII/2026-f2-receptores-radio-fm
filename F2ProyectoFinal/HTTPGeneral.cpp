@@ -3,6 +3,7 @@
 #include "HandlerTEA5767.h"
 #include "HandlerHEX3653.h"
 #include "HandlerX9C103S.h"
+#include "HandlerPresets.h"
 
 // ---------------- Claves de la conexión WiFi ----------------
 const char* ssid = "TP2F2_AP";       // Nombre de la red que va a crear
@@ -75,6 +76,7 @@ void HTTP_init()
   hexHTTP_init(); // Rutas del HEX
   teaHTTP_init(); // Rutas del TEA
   potHTTP_init(); // Rutas del volumen
+  presetsHTTP_init(); // Rutas de presintonias (EEPROM)
 
   server.begin();
   Serial.println("[HTTP] Servidor HTTP iniciado");

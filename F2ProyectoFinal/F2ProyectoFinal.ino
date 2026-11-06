@@ -2,6 +2,7 @@
 #include "HandlerHEX3653.h"
 #include "HandlerTEA5767.h"
 #include "HandlerX9C103S.h"
+#include "HandlerPresets.h"
 
 void setup() {
   Serial.begin(115200);
@@ -10,6 +11,7 @@ void setup() {
   potfunc_init(); // X9C103S (D5, D6, D7), calibra y deja el volumen al 50%
   hexpins_init(); // HEX3653 (D4, D3, D8)
   teafunc_init(); // TEA5767 por I2C (D1, D2)
+  presets_init(); // Carga presets desde memoria EEPROM
 
   HTTP_init();
 }
@@ -21,6 +23,7 @@ void setup() {
 // 'u'        -> Seek ↑ del TEA
 // 'i'        -> imprime el estado del TEA
 // 'r'        -> imprime los 5 bytes crudos que devuelve el TEA (I2C 0x60)
+// 'p'        -> imprime los presets guardados (EEPROM)
 void comandosSerie() {
   if (!Serial.available()) return;
   char c = Serial.read();
@@ -40,6 +43,7 @@ void comandosSerie() {
     Serial.println("[TEA5767] Seek UP terminado");
   }
   else if (c == 'i') Serial.println("[TEA5767] " + tea_get_status_json());
+  else if (c == 'p') Serial.println("[PRESETS] " + presets_get_json());
   else if (c == 'r') {
     Wire.requestFrom(0x60, 5);
     Serial.print("[TEA5767] RAW:");

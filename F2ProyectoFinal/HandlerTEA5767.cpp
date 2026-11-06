@@ -16,6 +16,11 @@ void tea_seek_down() {
   receptor.getInfo(&estado);
 }
 
+float tea_get_frequency() {
+  receptor.getInfo(&estado);
+  return estado.mhz;
+}
+
 void tea_set_frequency(float mhz) {
   receptor.setFrequency(mhz); delay(80);
   receptor.getInfo(&estado);

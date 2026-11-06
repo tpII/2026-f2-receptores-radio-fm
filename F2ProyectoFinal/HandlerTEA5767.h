@@ -13,6 +13,7 @@
 void tea_seek_up();
 void tea_seek_down();
 void tea_set_frequency(float mhz);
+float tea_get_frequency();
 void tea_toggle_standby();
 bool tea_is_standby();
 void tea_loop(); // Llamar en loop(): resintoniza tras salir del standby

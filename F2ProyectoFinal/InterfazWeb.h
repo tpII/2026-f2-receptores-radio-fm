@@ -101,6 +101,149 @@ const char index_html[] PROGMEM = R"rawliteral(
         padding: 0 8px;
       }
       .fila button.btn { width: auto; min-width: 64px; height: 42px; }
+
+      /* Presets / Memorias EEPROM */
+      .presets-card {
+        margin-top: 14px;
+        background: #fbfcfe;
+        border: 1px solid var(--borde);
+        border-radius: 10px;
+        padding: 14px;
+      }
+      .presets-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+      .presets-title {
+        font-weight: bold;
+        font-size: 13px;
+        color: var(--gris);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .presets-hint {
+        font-size: 12px;
+        color: var(--gris);
+      }
+      .presets-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+      }
+      @media (max-width: 600px) {
+        .presets-grid {
+          grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+        }
+      }
+      .preset-btn {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 64px;
+        background: var(--tarjeta);
+        border: 1px solid var(--borde);
+        border-radius: 8px;
+        cursor: pointer;
+        padding: 4px;
+        transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.1s;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+      }
+      .preset-btn:hover {
+        border-color: var(--acento);
+      }
+      .preset-btn:active {
+        transform: scale(0.97);
+      }
+      .preset-btn.activo {
+        border-color: var(--acento);
+        background: #e8f0fe;
+        box-shadow: 0 0 0 2px rgba(26,115,232,0.3);
+      }
+      .preset-btn.activo .preset-tag {
+        color: var(--acento);
+      }
+      .preset-tag {
+        font-size: 12px;
+        font-weight: bold;
+        color: var(--gris);
+      }
+      .preset-val {
+        font-size: 15px;
+        font-weight: bold;
+        color: var(--texto);
+        line-height: 1.1;
+        margin-top: 2px;
+      }
+      .preset-unit {
+        font-size: 10px;
+        color: var(--gris);
+      }
+      .preset-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 4px;
+        width: 0%;
+        background: #188038;
+        transition: width 0.85s linear;
+      }
+      .preset-bar.saving {
+        width: 100%;
+      }
+      .presets-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        margin-top: 12px;
+        font-size: 13px;
+        color: var(--gris);
+      }
+      .presets-actions label {
+        font-size: 13px;
+      }
+      .presets-actions select {
+        padding: 6px 10px;
+        border: 1px solid var(--borde);
+        border-radius: 6px;
+        background: var(--tarjeta);
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .presets-actions button.btn-save {
+        width: auto;
+        height: 36px;
+        padding: 0 12px;
+        font-size: 13px;
+        border-radius: 6px;
+        border: 1px solid var(--borde);
+        background: var(--tarjeta);
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .presets-actions button.btn-save:hover {
+        border-color: var(--acento);
+        color: var(--acento);
+      }
+      .preset-feedback {
+        min-height: 18px;
+        margin-top: 6px;
+        text-align: right;
+        font-size: 12px;
+        font-weight: bold;
+        color: #188038;
+      }
+
       .status { margin-top: 16px; }
       .rows { display: grid; gap: 10px; }
       .row { display: flex; justify-content: space-between; align-items: center; }
@@ -180,6 +323,84 @@ const char index_html[] PROGMEM = R"rawliteral(
           <button class="btn" onclick="sintonizarFina(0.1)">+0.1</button>
           <button class="btn" onclick="enviarValor()">Enviar</button>
         </div>
+
+        <!-- Presets / Memorias Favoritas (EEPROM) -->
+        <div class="card presets-card">
+          <div class="presets-header">
+            <span class="presets-title">Memorias Favoritas (P1 - P5)</span>
+            <span class="presets-hint">Clic: sintonizar | Mantener presionado: guardar estación</span>
+          </div>
+          <div class="presets-grid">
+            <button type="button" class="preset-btn" id="preset-btn-0"
+                    onpointerdown="iniciarPresionPreset(0, event)"
+                    onpointerup="finalizarPresionPreset(0, event)"
+                    onpointercancel="cancelarPresionPreset(0)"
+                    onpointerleave="cancelarPresionPreset(0)"
+                    onclick="clickPreset(0, event)">
+              <span class="preset-tag">P1</span>
+              <span class="preset-val" id="preset-freq-0">88.10</span>
+              <span class="preset-unit">MHz</span>
+              <div class="preset-bar" id="preset-bar-0"></div>
+            </button>
+            <button type="button" class="preset-btn" id="preset-btn-1"
+                    onpointerdown="iniciarPresionPreset(1, event)"
+                    onpointerup="finalizarPresionPreset(1, event)"
+                    onpointercancel="cancelarPresionPreset(1)"
+                    onpointerleave="cancelarPresionPreset(1)"
+                    onclick="clickPreset(1, event)">
+              <span class="preset-tag">P2</span>
+              <span class="preset-val" id="preset-freq-1">91.50</span>
+              <span class="preset-unit">MHz</span>
+              <div class="preset-bar" id="preset-bar-1"></div>
+            </button>
+            <button type="button" class="preset-btn" id="preset-btn-2"
+                    onpointerdown="iniciarPresionPreset(2, event)"
+                    onpointerup="finalizarPresionPreset(2, event)"
+                    onpointercancel="cancelarPresionPreset(2)"
+                    onpointerleave="cancelarPresionPreset(2)"
+                    onclick="clickPreset(2, event)">
+              <span class="preset-tag">P3</span>
+              <span class="preset-val" id="preset-freq-2">95.50</span>
+              <span class="preset-unit">MHz</span>
+              <div class="preset-bar" id="preset-bar-2"></div>
+            </button>
+            <button type="button" class="preset-btn" id="preset-btn-3"
+                    onpointerdown="iniciarPresionPreset(3, event)"
+                    onpointerup="finalizarPresionPreset(3, event)"
+                    onpointercancel="cancelarPresionPreset(3)"
+                    onpointerleave="cancelarPresionPreset(3)"
+                    onclick="clickPreset(3, event)">
+              <span class="preset-tag">P4</span>
+              <span class="preset-val" id="preset-freq-3">101.50</span>
+              <span class="preset-unit">MHz</span>
+              <div class="preset-bar" id="preset-bar-3"></div>
+            </button>
+            <button type="button" class="preset-btn" id="preset-btn-4"
+                    onpointerdown="iniciarPresionPreset(4, event)"
+                    onpointerup="finalizarPresionPreset(4, event)"
+                    onpointercancel="cancelarPresionPreset(4)"
+                    onpointerleave="cancelarPresionPreset(4)"
+                    onclick="clickPreset(4, event)">
+              <span class="preset-tag">P5</span>
+              <span class="preset-val" id="preset-freq-4">107.90</span>
+              <span class="preset-unit">MHz</span>
+              <div class="preset-bar" id="preset-bar-4"></div>
+            </button>
+          </div>
+          <div class="presets-actions">
+            <label for="sel-preset-slot">Guardar frecuencia actual en:</label>
+            <select id="sel-preset-slot">
+              <option value="0">P1 (Slot 1)</option>
+              <option value="1">P2 (Slot 2)</option>
+              <option value="2">P3 (Slot 3)</option>
+              <option value="3">P4 (Slot 4)</option>
+              <option value="4">P5 (Slot 5)</option>
+            </select>
+            <button type="button" class="btn btn-save" onclick="guardarPresetSeleccionado()">💾 Guardar Preset</button>
+          </div>
+          <div class="preset-feedback" id="preset-feedback"></div>
+        </div>
+
         <div class="card status">
           <div class="rows">
             <div class="row">
@@ -245,6 +466,7 @@ const char index_html[] PROGMEM = R"rawliteral(
         if (Number.isFinite(f)) {
           ultimaFreq = f;
           document.getElementById('tea-frequency').textContent = f.toFixed(2) + ' MHz';
+          actualizarPresetActivo();
         }
         const q = Number(state.quality);
         if (Number.isFinite(q)) {
@@ -291,6 +513,138 @@ const char index_html[] PROGMEM = R"rawliteral(
           .then(() => { document.getElementById('valorEntero').value = f.toFixed(2); });
       }
 
+      // -------- Presets / Memorias EEPROM --------
+      let presetsList = [88.1, 91.5, 95.5, 101.5, 107.9];
+      let presetHoldTimer = null;
+      let holdTriggered = false;
+      let feedbackTimer = null;
+
+      function mostrarFeedbackPreset(msg, esError = false) {
+        const el = document.getElementById('preset-feedback');
+        if (!el) return;
+        clearTimeout(feedbackTimer);
+        el.textContent = msg;
+        el.style.color = esError ? '#d93025' : '#188038';
+        feedbackTimer = setTimeout(() => { el.textContent = ''; }, 3500);
+      }
+
+      function renderPresetsUI(data) {
+        let items = [];
+        if (Array.isArray(data)) items = data;
+        else if (data && Array.isArray(data.presets)) items = data.presets;
+
+        items.forEach((item, idx) => {
+          const slot = (typeof item.slot === 'number') ? item.slot : idx;
+          const freq = (typeof item === 'object' && item.frequency !== undefined) ? Number(item.frequency) : Number(item);
+          if (slot >= 0 && slot < 5 && Number.isFinite(freq)) {
+            presetsList[slot] = freq;
+            const el = document.getElementById('preset-freq-' + slot);
+            if (el) el.textContent = freq.toFixed(2);
+          }
+        });
+        actualizarPresetActivo();
+      }
+
+      function cargarPresets() {
+        return fetch('/api/presets')
+          .then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+          })
+          .then(data => renderPresetsUI(data))
+          .catch(err => console.error('Error al cargar /api/presets:', err));
+      }
+
+      function actualizarPresetActivo() {
+        for (let i = 0; i < 5; i++) {
+          const btn = document.getElementById('preset-btn-' + i);
+          if (!btn) continue;
+          const activo = Math.abs(ultimaFreq - presetsList[i]) < 0.05;
+          btn.classList.toggle('activo', activo);
+        }
+      }
+
+      function seleccionarPreset(slot) {
+        mostrarFeedbackPreset('Sintonizando P' + (slot + 1) + ' (' + presetsList[slot].toFixed(2) + ' MHz)...');
+        fetch('/api/presets/select?slot=' + slot)
+          .then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+          })
+          .then(data => {
+            renderTEA(data);
+            actualizarPresetActivo();
+            mostrarFeedbackPreset('P' + (slot + 1) + ' sintonizado: ' + presetsList[slot].toFixed(2) + ' MHz');
+          })
+          .catch(err => {
+            console.error('Error select preset:', err);
+            mostrarFeedbackPreset('Error al sintonizar preset', true);
+          });
+      }
+
+      function guardarPreset(slot, frecuencia) {
+        const f = Number(frecuencia || ultimaFreq);
+        if (!Number.isFinite(f) || f < 87.5 || f > 108.0) {
+          mostrarFeedbackPreset('Frecuencia fuera de rango (87.5 - 108 MHz)', true);
+          return;
+        }
+        mostrarFeedbackPreset('Guardando P' + (slot + 1) + ' (' + f.toFixed(2) + ' MHz)...');
+        fetch('/api/presets/save?slot=' + slot + '&freq=' + f.toFixed(2))
+          .then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+          })
+          .then(data => {
+            presetsList[slot] = f;
+            const el = document.getElementById('preset-freq-' + slot);
+            if (el) el.textContent = f.toFixed(2);
+            actualizarPresetActivo();
+            mostrarFeedbackPreset('¡Guardado con éxito en P' + (slot + 1) + ' (' + f.toFixed(2) + ' MHz)!');
+          })
+          .catch(err => {
+            console.error('Error save preset:', err);
+            mostrarFeedbackPreset('Error al guardar preset', true);
+          });
+      }
+
+      function guardarPresetSeleccionado() {
+        const sel = document.getElementById('sel-preset-slot');
+        const slot = parseInt(sel.value, 10);
+        guardarPreset(slot, ultimaFreq);
+      }
+
+      function iniciarPresionPreset(slot, ev) {
+        holdTriggered = false;
+        const bar = document.getElementById('preset-bar-' + slot);
+        if (bar) bar.classList.add('saving');
+        clearTimeout(presetHoldTimer);
+        presetHoldTimer = setTimeout(() => {
+          holdTriggered = true;
+          if (bar) bar.classList.remove('saving');
+          guardarPreset(slot, ultimaFreq);
+        }, 850);
+      }
+
+      function finalizarPresionPreset(slot, ev) {
+        const bar = document.getElementById('preset-bar-' + slot);
+        if (bar) bar.classList.remove('saving');
+        clearTimeout(presetHoldTimer);
+      }
+
+      function cancelarPresionPreset(slot) {
+        const bar = document.getElementById('preset-bar-' + slot);
+        if (bar) bar.classList.remove('saving');
+        clearTimeout(presetHoldTimer);
+      }
+
+      function clickPreset(slot, ev) {
+        if (holdTriggered) {
+          holdTriggered = false;
+          return;
+        }
+        seleccionarPreset(slot);
+      }
+
       // -------- Consulta periódica del estado del TEA (solo con la TEA seleccionada) --------
       function iniciarPolling() {
         if (teaTimer) return;
@@ -317,6 +671,7 @@ const char index_html[] PROGMEM = R"rawliteral(
         if (esTea) {
           document.getElementById('status-msg').textContent = 'Cargando estado…';
           cargarEstadoTEA();
+          cargarPresets();
           iniciarPolling();
         } else {
           detenerPolling();
@@ -403,6 +758,7 @@ const char index_html[] PROGMEM = R"rawliteral(
       // -------- Inicio --------
       window.addEventListener('DOMContentLoaded', () => {
         iniciarVolumen();
+        cargarPresets();
         document.getElementById('sel-radio').addEventListener('change', e => seleccionarRadio(e.target.value));
         // Se muestra la radio que está sonando según el ESP8266, sin conmutar el relé
         pedirRadio()
