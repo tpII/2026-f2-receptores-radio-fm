@@ -34,6 +34,7 @@ void select_radio(RadioActiva radio) {
   } else {
     pinMode(PIN_RELE, INPUT);    // Suelta el pin: el módulo sube IN y el relé se apaga
   }
+  pot_set_radio_tea(radio == RADIO_TEA); // Compensa el volumen: la TEA suena más fuerte
   Serial.println(radio == RADIO_TEA ? "[RELE] Audio conmutado a TEA5767 (D0 = LOW, rele activado, COM-NO)."
                                    : "[RELE] Audio conmutado a HEX3653 (D0 suelto, rele apagado, COM-NC).");
 }

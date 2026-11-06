@@ -4,6 +4,9 @@
 static int  posicion = 0;            // Posición actual del cursor (0 a POT_PASOS)
 static int  volumen = POT_INICIAL;   // Volumen elegido (en %), se conserva durante el mute
 static bool silenciado = false;
+static bool iniciado = false;        // Hasta calibrar no se conoce la posición del cursor
+static bool tea_activa = false;      // Al arrancar suena la HEX3653
+static int  ganancia_tea = TEA_GANANCIA;
 
 // ---------------- Movimiento del cursor ----------------
 
@@ -30,9 +33,11 @@ static void pot_mover(bool subir, int pasos) {
   digitalWrite(POT_INC, HIGH);
 }
 
-// Lleva el cursor a la posición correspondiente al porcentaje indicado
+// Lleva el cursor a la posición correspondiente al porcentaje indicado,
+// atenuado por ganancia_tea si la que suena es la TEA5767
 static void pot_aplicar(int porcentaje) {
-  int destino = (porcentaje * POT_PASOS + 50) / 100;
+  int ganancia = tea_activa ? ganancia_tea : 100;
+  int destino = (porcentaje * ganancia * POT_PASOS + 5000) / 10000;
   if (destino > posicion)      pot_mover(true, destino - posicion);
   else if (destino < posicion) pot_mover(false, posicion - destino);
   posicion = destino;
@@ -53,6 +58,25 @@ void pot_toggle_mute() {
   silenciado = !silenciado;
   pot_aplicar(silenciado ? 0 : volumen);
 }
+
+// ---------------- Compensación entre radios ----------------
+
+// Reaplica el volumen actual (respetando el mute) con la ganancia que corresponda
+static void pot_reaplicar() {
+  if (iniciado) pot_aplicar(silenciado ? 0 : volumen);
+}
+
+void pot_set_radio_tea(bool activa) {
+  tea_activa = activa;
+  pot_reaplicar();
+}
+
+void pot_set_ganancia_tea(int porcentaje) {
+  ganancia_tea = constrain(porcentaje, 0, 100);
+  pot_reaplicar();
+}
+
+int pot_get_ganancia_tea() { return ganancia_tea; }
 
 // Estado en JSON: { volume, muted }
 static void enviarEstado() {
@@ -89,6 +113,7 @@ void potfunc_init() {
   // No se conoce la posición guardada: se lleva el cursor al mínimo para calibrar
   pot_mover(false, POT_PASOS + 1);
   posicion = 0;
+  iniciado = true;
   pot_set_volume(POT_INICIAL);
 
   Serial.println("[X9C103S] Potenciómetro inicializado al 50%.");
