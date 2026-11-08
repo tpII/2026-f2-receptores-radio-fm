@@ -11,10 +11,10 @@
 #define POT_PASOS   99 // El X9C103S tiene 100 posiciones (0 a 99)
 #define POT_INICIAL 50 // Volumen al arrancar (en %)
 
-// La TEA5767 entrega más señal que la HEX3653: con el mismo % de la interfaz sonaba más fuerte.
-// Cuando suena la TEA, la posición del cursor se escala por este factor (en %) para que
-// el mismo volumen marcado se escuche igual en las dos radios. 100 = sin atenuación.
-// Se calibra de oído con '+' / '-' por Monitor Serie y después se fija acá.
+// La TEA5767 tiene mas señal que la HEX3653 y con el mismo % sonaba mas fuerte.
+// Cuando suena la TEA la posicion del cursor se multiplica por este factor (en %) para
+// que las dos se escuchen parecido. 100 = sin atenuar.
+// Lo ajustamos de oido con '+' y '-' desde el Monitor Serie y despues lo dejamos fijo aca.
 #define TEA_GANANCIA 50
 
 // ---------------- Volumen y mute ----------------

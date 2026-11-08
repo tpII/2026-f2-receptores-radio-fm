@@ -1,5 +1,5 @@
 #include "HandlerHEX3653.h"
-#include "HTTPGeneral.h"
+#include "../servidor/HTTPGeneral.h"
 #include <user_interface.h> // system_get_rst_info()
 
 // ---------------- Función para enviar pulso ----------------
@@ -30,11 +30,10 @@ void hexpins_init(){
   Serial.println("[HEX3653] Pines configurados (D4:PSW, D3:SEEK-, D8:SEEK+).");
 }
 
-// PSW es un pulsador que CONMUTA (encendido <-> apagado) y la HEX no avisa su estado.
-// Si se pulsara en cada arranque, un reset del ESP sin cortar la energía (botón RST,
-// subida de firmware, watchdog) la APAGARÍA. Por eso solo se pulsa cuando el ESP
-// arrancó por corte de energía: ahí la HEX, que comparte la alimentación, también
-// arrancó de cero y apagada.
+// El PSW prende y apaga (es un toggle) y no hay forma de saber si la HEX esta prendida.
+// Si lo pulsamos en cada arranque, cuando el ESP se resetea sin cortar la luz (boton RST,
+// al subir el codigo, watchdog) la HEX se apagaba. Entonces solo lo pulsamos si el ESP
+// arranco por un corte de energia, porque en ese caso la HEX tambien arranca apagada.
 void hex_encender_al_inicio() {
 #if HEX_ENCENDER_AL_INICIO
   uint32_t motivo = system_get_rst_info()->reason;

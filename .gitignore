@@ -7,3 +7,8 @@
 !*.cpp
 !*.h
 !*.c
+!*.md
+
+# Carpetas del código: hay que habilitarlas explícitamente porque "*" también ignora carpetas
+!/src/
+!/src/**/

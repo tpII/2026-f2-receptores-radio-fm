@@ -7,7 +7,7 @@
 // Cada pin emula un pulsador del módulo (reposo HIGH, pulsado LOW)
 #define S_UP   15 // D8 - SEEK+
 #define S_DOWN 0  // D3 - SEEK-
-#define ON_OFF 2  // D4 - PSW (reposo HIGH, compatible con el arranque del ESP8266)
+#define ON_OFF 2  // D4 - PSW (en reposo HIGH, asi el ESP8266 arranca bien)
 
 // ---------------- Encendido automático al arrancar ----------------
 // Poner en 0 para que la HEX no se encienda sola al alimentar el sistema

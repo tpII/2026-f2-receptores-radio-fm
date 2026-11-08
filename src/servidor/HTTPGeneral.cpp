@@ -1,8 +1,9 @@
 #include "HTTPGeneral.h"
 #include "InterfazWeb.h"
-#include "HandlerTEA5767.h"
-#include "HandlerHEX3653.h"
-#include "HandlerX9C103S.h"
+#include "../tea5767/HandlerTEA5767.h"
+#include "../hex3653/HandlerHEX3653.h"
+#include "../x9c103s/HandlerX9C103S.h"
+#include "../tea5767/HandlerPresets.h"
 
 // ---------------- Claves de la conexión WiFi ----------------
 const char* ssid = "TP2F2_AP";       // Nombre de la red que va a crear
@@ -32,9 +33,9 @@ void select_radio(RadioActiva radio) {
     pinMode(PIN_RELE, OUTPUT);
     digitalWrite(PIN_RELE, LOW); // Activa el relé
   } else {
-    pinMode(PIN_RELE, INPUT);    // Suelta el pin: el módulo sube IN y el relé se apaga
+    pinMode(PIN_RELE, INPUT);    // Lo dejamos como entrada, el modulo sube IN y se apaga el relé
   }
-  pot_set_radio_tea(radio == RADIO_TEA); // Compensa el volumen: la TEA suena más fuerte
+  pot_set_radio_tea(radio == RADIO_TEA); // La TEA suena más fuerte, asi que se ajusta el volumen
   Serial.println(radio == RADIO_TEA ? "[RELE] Audio conmutado a TEA5767 (D0 = LOW, rele activado, COM-NO)."
                                    : "[RELE] Audio conmutado a HEX3653 (D0 suelto, rele apagado, COM-NC).");
 }
@@ -44,7 +45,7 @@ void select_radio(RadioActiva radio) {
 
 void handleRoot() { server.send(200, "text/html", index_html); }
 
-// /radio?radio=tea|hex -> conmuta el relé; siempre responde la radio activa ("tea" o "hex")
+// /radio?radio=tea o hex -> cambia el relé y devuelve que radio quedó activa
 void handleRadio() {
   if (server.hasArg("radio")) {
     String r = server.arg("radio");
@@ -76,6 +77,7 @@ void HTTP_init()
   hexHTTP_init(); // Rutas del HEX
   teaHTTP_init(); // Rutas del TEA
   potHTTP_init(); // Rutas del volumen
+  presetsHTTP_init(); // Rutas de presintonias (EEPROM)
 
   server.begin();
   Serial.println("[HTTP] Servidor HTTP iniciado");

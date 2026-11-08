@@ -16,15 +16,24 @@ El sistema integra dos receptores de radio de distinta arquitectura: el **TEA576
 ## 📂 Estructura del Repositorio
 ```text
 2026-f2-receptores-radio-fm/
-├── F2ProyectoFinal.ino       # Programa principal (setup, loop y comandos por monitor serie)
-├── HTTPGeneral.cpp / .h       # Servidor HTTP, configuración del AP WiFi y control del relé HL-51
-├── HandlerTEA5767.cpp / .h    # Controlador y rutas HTTP para el módulo TEA5767
-├── HandlerHEX3653.cpp / .h    # Emulación de pulsos GPIO y rutas HTTP para el HEX3653
-├── HandlerX9C103S.cpp / .h    # Gestión del potenciómetro digital X9C103S y volumen
-├── InterfazWeb.h             # Página web interactiva (HTML, CSS, JS asincrónico en PROGMEM)
-├── TEA5767.cpp / .h           # Librería núcleo para la comunicación I2C con el TEA5767
-└── README.md                 # Documentación principal del proyecto
+├── 2026-f2-receptores-radio-fm.ino   # Programa principal (setup, loop y comandos por monitor serie)
+├── README.md                         # Documentación principal del proyecto
+└── src/
+    ├── servidor/
+    │   ├── HTTPGeneral.cpp / .h      # Servidor HTTP, configuración del AP WiFi y control del relé HL-51
+    │   └── InterfazWeb.h             # Página web (HTML, CSS y JS en PROGMEM), adaptada a celulares
+    ├── tea5767/
+    │   ├── HandlerTEA5767.cpp / .h   # Controlador y rutas HTTP del módulo TEA5767
+    │   ├── HandlerPresets.cpp / .h   # Presintonías P1-P5 del TEA5767 guardadas en EEPROM y sus rutas HTTP
+    │   ├── TEA5767.cpp / .h          # Librería núcleo para la comunicación I2C con el TEA5767
+    │   └── tea5767_core.c / .h       # Funciones de bajo nivel del TEA5767 (registros I2C)
+    ├── hex3653/
+    │   └── HandlerHEX3653.cpp / .h   # Emulación de pulsos GPIO y rutas HTTP del HEX3653
+    └── x9c103s/
+        └── HandlerX9C103S.cpp / .h   # Potenciómetro digital X9C103S: volumen, mute y ganancia de la TEA
 ```
+
+> 📁 El código de los módulos está dentro de `src/` porque el Arduino IDE solo compila las subcarpetas que están ahí. Los `#include` usan rutas relativas (por ejemplo `#include "src/servidor/HTTPGeneral.h"` desde el `.ino` o `#include "../servidor/HTTPGeneral.h"` desde un módulo).
 
 
 ## 🛠️ Componentes y Materiales
@@ -84,9 +93,10 @@ El sistema integra dos receptores de radio de distinta arquitectura: el **TEA576
 ### Carga del Proyecto
 1. Clonar este repositorio:
    ```bash
-   git clone [https://github.com/tpII/2026-f2-receptores-radio-fm.git](https://github.com/tpII/2026-f2-receptores-radio-fm.git)
+   git clone https://github.com/tpII/2026-f2-receptores-radio-fm.git
+   ```
 
-2. Abrir el archivo F2ProyectoFinal.ino en el Arduino IDE.
+2. Abrir el archivo `2026-f2-receptores-radio-fm.ino` en el Arduino IDE.
 
 3. Configurar la placa en el menú Herramientas:
 
@@ -112,7 +122,14 @@ El sistema integra dos receptores de radio de distinta arquitectura: el **TEA576
    * **Selector de Radio:** Alterna entre **HEX3653** (relé en reposo) y **TEA5767** (relé activado).
    * **Control de Volumen:** Deslizador porcentual (0 a 100%) y botón *Mute*.
    * **Panel TEA5767:** Búsqueda automática (*Seek*), sintonía fina de $\pm 0.1\,\text{MHz}$, ingreso directo de frecuencia e indicador visual de nivel de señal.
+   * **Memorias Favoritas (P1 a P5):** Cinco presintonías del TEA5767 que se conservan en la EEPROM aunque se corte la energía. Un clic sintoniza la estación; mantener presionado el botón (o elegir el lugar en *Guardar frecuencia actual en* y tocar *Guardar*) guarda en ese lugar la frecuencia que está sonando. Valores de fábrica: 88.10, 91.50, 95.50, 101.50 y 107.90 MHz.
    * **Panel HEX3653:** Botones para enviar impulsos `S_UP` (D8), `S_DOWN` (D3) y `ON/OFF` (D4).
+4. **Uso desde el celular:**
+   * La página se adapta a pantallas angostas: el deslizador de volumen ocupa todo el ancho, la sintonía fina queda como `−0.1 [frecuencia] +0.1` con *Enviar* debajo y las cinco presintonías se muestran en una fila, como los botones de una radio (en pantallas de 360 px o menos pasan a 3 + 2).
+   * Los botones tienen al menos 44 px de alto, no hacen zoom con el doble toque y mantener presionada una presintonía no abre el menú del sistema.
+5. **Mientras la placa procesa un pedido:**
+   * El ESP8266 atiende un pedido por vez. Mientras uno está en curso, los botones del panel afectado quedan deshabilitados (por ejemplo, no se puede lanzar dos *Seek* seguidos ni cambiar de radio a mitad de una búsqueda).
+   * Si la placa no contesta en unos segundos, el pedido se cancela y los controles vuelven a habilitarse solos.
 
 
 ## 👥 Autores y Créditos
