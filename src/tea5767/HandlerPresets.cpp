@@ -1,5 +1,5 @@
 #include "HandlerPresets.h"
-#include "HTTPGeneral.h"
+#include "../servidor/HTTPGeneral.h"
 #include "HandlerTEA5767.h"
 #include <EEPROM.h>
 
@@ -118,19 +118,23 @@ void handlePresetsGet() {
   server.send(200, "application/json", presets_get_json());
 }
 
+// Lee el parametro slot (o index), tiene que ser un numero de 0 a 4 (0 = P1).
+// Devuelve -1 si esta mal. Revisamos que sean digitos porque toInt() devuelve 0 si le pasas texto
+static int leer_slot() {
+  String param = server.hasArg("slot") ? server.arg("slot") : server.arg("index");
+  param.trim();
+  if (param.length() == 0) return -1;
+  for (unsigned int i = 0; i < param.length(); i++) {
+    if (!isDigit(param[i])) return -1;
+  }
+  int slot = param.toInt();
+  return (slot < PRESETS_COUNT) ? slot : -1;
+}
+
 // POST /api/presets o GET /api/presets/save?slot=X&freq=Y
 void handlePresetsSave() {
-  int slot = -1;
-  if (server.hasArg("slot")) {
-    slot = server.arg("slot").toInt();
-  } else if (server.hasArg("index")) {
-    slot = server.arg("index").toInt();
-  }
-
-  // Tolerancia para índices 1-based (1 a 5) o 0-based (0 a 4)
-  if (slot == 5) slot = 4;
-
-  if (slot < 0 || slot >= PRESETS_COUNT) {
+  int slot = leer_slot();
+  if (slot < 0) {
     server.send(400, "application/json", "{\"status\":\"error\",\"message\":\"Parametro slot invalido (debe ser 0 a 4)\"}");
     return;
   }
@@ -164,28 +168,27 @@ void handlePresetsSave() {
     return;
   }
 
-  String resp = "{\"status\":\"ok\",\"slot\":" + String(slot) + ",\"frequency\":" + String(freq, 2) + ",\"presets\":" + presets_get_json() + "}";
+  // Le sacamos la llave del principio al json de presets para que quede todo en el mismo objeto
+  String resp = "{\"status\":\"ok\",\"slot\":" + String(slot) + ",\"frequency\":" + String(freq, 2) + "," + presets_get_json().substring(1);
   server.send(200, "application/json", resp);
 }
 
-// GET /api/presets/select?slot=X -> sintoniza inmediatamente el preset X
+// GET /api/presets/select?slot=X -> sintoniza el preset X
 void handlePresetsSelect() {
   if (!server.hasArg("slot") && !server.hasArg("index")) {
     server.send(400, "application/json", "{\"status\":\"error\",\"message\":\"Falta parametro ?slot=\"}");
     return;
   }
 
-  int slot = server.hasArg("slot") ? server.arg("slot").toInt() : server.arg("index").toInt();
-  if (slot == 5) slot = 4;
-
-  if (slot < 0 || slot >= PRESETS_COUNT) {
+  int slot = leer_slot();
+  if (slot < 0) {
     server.send(400, "application/json", "{\"status\":\"error\",\"message\":\"Slot fuera de rango (0 a 4)\"}");
     return;
   }
 
   float f = presets_get((uint8_t)slot);
 
-  // Asegura audio conmutado al TEA5767 y sintoniza
+  // Pasamos el relé a la TEA y sintonizamos
   select_radio(RADIO_TEA);
   tea_set_frequency(f);
 

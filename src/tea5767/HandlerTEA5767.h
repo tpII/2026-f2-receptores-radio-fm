@@ -16,7 +16,7 @@ void tea_set_frequency(float mhz);
 float tea_get_frequency();
 void tea_toggle_standby();
 bool tea_is_standby();
-void tea_loop(); // Llamar en loop(): resintoniza tras salir del standby
+void tea_loop(); // Va en el loop(), resintoniza despues del standby
 String tea_get_status_json();
 
 // ---------------- Handlers ----------------

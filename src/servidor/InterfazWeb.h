@@ -69,20 +69,29 @@ const char index_html[] PROGMEM = R"rawliteral(
       .panel h2 { margin: 0 0 14px; font-size: 20px; color: var(--acento); }
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr)); /* Las 3 acciones siempre en una fila */
         gap: 12px;
       }
       button.btn {
         width: 100%;
         height: 56px;
+        padding: 4px 8px;
         font-size: 16px;
+        line-height: 1.2;
+        color: var(--texto);
         border-radius: 10px;
         border: 1px solid var(--borde);
         background: var(--tarjeta);
         cursor: pointer;
+        touch-action: manipulation; /* para que no haga zoom con doble toque */
       }
-      button.btn:hover { border-color: var(--acento); color: var(--acento); }
-      button.btn:active { background: #e8f0fe; }
+      /* hover solo con mouse, en el celu el color queda pegado despues de tocar */
+      @media (hover: hover) {
+        button.btn:hover:not(:disabled) { border-color: var(--acento); color: var(--acento); }
+      }
+      button.btn:active:not(:disabled) { background: #e8f0fe; }
+      /* botones deshabilitados mientras el ESP8266 esta procesando */
+      button:disabled, select:disabled { opacity: 0.55; cursor: progress; }
       .fila {
         display: flex;
         gap: 8px;
@@ -93,14 +102,14 @@ const char index_html[] PROGMEM = R"rawliteral(
       }
       .fila input[type="number"] {
         width: 140px;
-        height: 42px;
+        height: 44px;
         font-size: 16px;
         text-align: center;
         border: 1px solid var(--borde);
         border-radius: 8px;
         padding: 0 8px;
       }
-      .fila button.btn { width: auto; min-width: 64px; height: 42px; }
+      .fila button.btn { width: auto; min-width: 64px; height: 44px; }
 
       /* Presets / Memorias EEPROM */
       .presets-card {
@@ -134,11 +143,6 @@ const char index_html[] PROGMEM = R"rawliteral(
         grid-template-columns: repeat(5, 1fr);
         gap: 8px;
       }
-      @media (max-width: 600px) {
-        .presets-grid {
-          grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
-        }
-      }
       .preset-btn {
         position: relative;
         overflow: hidden;
@@ -155,12 +159,13 @@ const char index_html[] PROGMEM = R"rawliteral(
         transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.1s;
         user-select: none;
         -webkit-user-select: none;
+        -webkit-touch-callout: none; /* en iOS al mantener apretado sale un menu, con esto no aparece */
         touch-action: manipulation;
       }
-      .preset-btn:hover {
-        border-color: var(--acento);
+      @media (hover: hover) {
+        .preset-btn:hover:not(:disabled) { border-color: var(--acento); }
       }
-      .preset-btn:active {
+      .preset-btn:active:not(:disabled) {
         transform: scale(0.97);
       }
       .preset-btn.activo {
@@ -231,9 +236,8 @@ const char index_html[] PROGMEM = R"rawliteral(
         cursor: pointer;
         font-weight: bold;
       }
-      .presets-actions button.btn-save:hover {
-        border-color: var(--acento);
-        color: var(--acento);
+      @media (hover: hover) {
+        .presets-actions button.btn-save:hover:not(:disabled) { border-color: var(--acento); color: var(--acento); }
       }
       .preset-feedback {
         min-height: 18px;
@@ -280,6 +284,53 @@ const char index_html[] PROGMEM = R"rawliteral(
         line-height: 1.5;
       }
       footer .title { font-weight: bold; font-size: 15px; color: var(--texto); }
+      footer { padding: 0 16px; }
+      .selector select { min-height: 44px; color: var(--texto); }
+      .presets-actions button.btn-save { color: var(--texto); }
+
+      /* ---------------- Celulares ---------------- */
+      @media (max-width: 560px) {
+        .page { padding: 16px 12px 4px; }
+        h1 { font-size: 22px; margin-top: 4px; }
+        .selector { margin: 10px 0 16px; }
+        .card { padding: 14px; }
+        .panel { margin-bottom: 16px; }
+        .panel h2 { font-size: 18px; margin-bottom: 12px; }
+        .grid { gap: 8px; }
+
+        /* volumen: arriba el texto y el boton de mute, abajo la barra a todo el ancho */
+        .volumen { flex-wrap: wrap; gap: 6px 12px; margin-bottom: 16px; }
+        .volumen label { flex: 1; }
+        .volumen span { order: 2; min-width: 3em; }
+        /* sin min-width porque si no "Quitar mute" no entra en pantallas de 320px */
+        .volumen button.btn-mute { order: 3; height: 44px; min-width: 0; padding: 0 14px; }
+        .volumen input { order: 4; flex: 1 0 100%; height: 44px; margin: 0; accent-color: var(--acento); }
+
+        /* sintonia fina: -0.1, la frecuencia y +0.1 en una fila, y Enviar abajo */
+        .fila { display: grid; grid-template-columns: 64px minmax(0, 1fr) 64px; gap: 8px; }
+        .fila input[type="number"] { width: 100%; }
+        .fila button.btn:last-child { grid-column: 1 / -1; width: 100%; }
+
+        /* las 5 presintonias en una fila */
+        .presets-card { padding: 10px; }
+        .presets-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+        .preset-btn { height: 60px; padding: 2px; }
+        .preset-val { font-size: 14px; }
+        .presets-actions { justify-content: stretch; }
+        .presets-actions label { flex: 1 0 100%; }
+        .presets-actions select,
+        .presets-actions button.btn-save { flex: 1; height: 44px; font-size: 16px; }
+        .presets-actions select { flex: 0 1 auto; min-width: 0; } /* asi el boton ocupa lo que sobra y entra todo en una linea */
+        .preset-feedback { text-align: left; }
+      }
+
+      /* pantallas chicas (360px o menos): presintonias en 2 filas (3 y 2) para que entre la frecuencia */
+      @media (max-width: 360px) {
+        .presets-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .grid button.btn { font-size: 15px; }
+        .presets-actions select,
+        .presets-actions button.btn-save { flex: 1 0 100%; }
+      }
     </style>
   </head>
   <body>
@@ -313,9 +364,9 @@ const char index_html[] PROGMEM = R"rawliteral(
       <section id="panel-tea" class="card panel hidden">
         <h2>Control TEA5767</h2>
         <div class="grid">
-          <button class="btn" onclick="enviarPulsoTEA('/_up')">Seek ↑</button>
-          <button class="btn" onclick="enviarPulsoTEA('/_down')">Seek ↓</button>
-          <button class="btn" onclick="enviarPulsoTEA('/stand_by')">Standby ON/OFF</button>
+          <button class="btn" onclick="buscarTEA('/_up')">Seek ↑</button>
+          <button class="btn" onclick="buscarTEA('/_down')">Seek ↓</button>
+          <button class="btn" onclick="standbyTEA()">Standby ON/OFF</button>
         </div>
         <div class="fila">
           <button class="btn" onclick="sintonizarFina(-0.1)">−0.1</button>
@@ -396,7 +447,7 @@ const char index_html[] PROGMEM = R"rawliteral(
               <option value="3">P4 (Slot 4)</option>
               <option value="4">P5 (Slot 5)</option>
             </select>
-            <button type="button" class="btn btn-save" onclick="guardarPresetSeleccionado()">💾 Guardar Preset</button>
+            <button type="button" class="btn btn-save" onclick="guardarPresetSeleccionado()"> Guardar </button>
           </div>
           <div class="preset-feedback" id="preset-feedback"></div>
         </div>
@@ -434,18 +485,88 @@ const char index_html[] PROGMEM = R"rawliteral(
     <script>
       let ultimaFreq = 87.5;
       let teaTimer = null;
+      let pollingActivo = false;
+      let teaSeq = 0; // contador de comandos al TEA, para descartar respuestas viejas del polling
+
+      // -------- Pedidos al ESP8266 --------
+
+      // fetch con timeout, si el ESP8266 no contesta se cancela y se vuelven a habilitar los botones
+      function pedir(url, ms = 4000, tipo = 'json') {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), ms);
+        return fetch(url, { signal: ctrl.signal })
+          .then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return tipo === 'json' ? r.json() : r.text();
+          })
+          .finally(() => clearTimeout(t));
+      }
+
+      // -------- Bloqueo de botones mientras hay un pedido --------
+      // El ESP8266 atiende de a un pedido, entonces mientras hay uno en curso deshabilitamos
+      // los botones de ese panel para que no se acumulen (por ej. apretar Seek dos veces).
+      // Cambiar de radio bloquea todo. El volumen no se bloquea porque ya espera a que sueltes la barra.
+      const ocupado = { radio: false, tea: false, hex: false, mute: false };
+      let focoPrevio = null;
+
+      function hayPedido() { return ocupado.radio || ocupado.tea || ocupado.hex; }
+
+      // al deshabilitar un boton pierde el foco, se lo devolvemos cuando se habilita (para el teclado)
+      function setDeshabilitado(el, off) {
+        if (!el || el.disabled === off) return;
+        if (off && document.activeElement === el) focoPrevio = el;
+        el.disabled = off;
+        if (!off && focoPrevio === el) {
+          focoPrevio = null;
+          const activo = document.activeElement;
+          if (!activo || activo === document.body) el.focus({ preventScroll: true });
+        }
+      }
+
+      function actualizarBloqueos() {
+        const hex = ocupado.radio || ocupado.hex;
+        const tea = ocupado.radio || ocupado.tea;
+        setDeshabilitado(document.getElementById('sel-radio'), hayPedido());
+        document.querySelectorAll('#panel-hex button').forEach(b => setDeshabilitado(b, hex));
+        document.querySelectorAll('#panel-tea button, #panel-tea select').forEach(b => setDeshabilitado(b, tea));
+        document.getElementById('panel-hex').setAttribute('aria-busy', hex);
+        document.getElementById('panel-tea').setAttribute('aria-busy', tea);
+        setDeshabilitado(document.getElementById('btn-mute'), ocupado.mute);
+      }
+
+      function grupoLibre(grupo) {
+        if (grupo === 'mute') return !ocupado.mute;
+        if (grupo === 'radio') return !hayPedido();
+        return !ocupado[grupo] && !ocupado.radio;
+      }
+
+      // Ejecuta tarea() con el grupo bloqueado. Si el grupo ya estaba ocupado no hace nada
+      // y devuelve false, si no devuelve lo que devuelva tarea().
+      function conBloqueo(grupo, tarea) {
+        if (!grupoLibre(grupo)) return Promise.resolve(false);
+        ocupado[grupo] = true;
+        actualizarBloqueos();
+        return Promise.resolve()
+          .then(tarea)
+          .finally(() => {
+            ocupado[grupo] = false;
+            actualizarBloqueos();
+          });
+      }
 
       // -------- Estado TEA5767 --------
 
       function cargarEstadoTEA() {
-        return fetch('/tea/status')
-          .then(r => r.json())
+        const seq = teaSeq;
+        return pedir('/tea/status')
           .then(json => {
+            if (seq !== teaSeq || ocupado.tea) return; // respuesta vieja, ya hay un comando mas nuevo
             renderTEA(json);
             document.getElementById('status-msg').textContent = 'Estado actualizado correctamente';
           })
           .catch(err => {
             console.error('No se pudo obtener /tea/status', err);
+            if (seq !== teaSeq || ocupado.tea) return;
             document.getElementById('status-msg').textContent = 'Error al actualizar estado';
           });
       }
@@ -480,18 +601,41 @@ const char index_html[] PROGMEM = R"rawliteral(
 
       // -------- Envío de comandos --------
 
-      // HEX3653: sus rutas solo confirman el pulso, no hay estado que mostrar
+      // HEX3653: solo confirma que mando el pulso, no devuelve estado
       function enviarPulsoHEX(pin) {
-        fetch('/' + pin)
-          .catch(err => console.error('ERR:', pin, err));
+        return conBloqueo('hex', () =>
+          pedir('/' + pin, 3000, 'text')
+            .catch(err => console.error('ERR:', pin, err)));
       }
 
-      // TEA5767: el ESP8266 responde con el estado actualizado, se dibuja directamente
-      function enviarPulsoTEA(url) {
-        return fetch(url)
-          .then(r => r.json())
-          .then(renderTEA)
-          .catch(err => console.error('ERR:', url, err));
+      // TEA5767: el ESP8266 devuelve el estado nuevo y lo mostramos directo.
+      // Devuelve true si salio bien.
+      function enviarPulsoTEA(url, mensaje, ms = 4000) {
+        return conBloqueo('tea', () => {
+          teaSeq++;
+          const msg = document.getElementById('status-msg');
+          msg.textContent = mensaje || 'Procesando…';
+          return pedir(url, ms)
+            .then(estado => {
+              renderTEA(estado);
+              msg.textContent = 'Estado actualizado correctamente';
+              return true;
+            })
+            .catch(err => {
+              console.error('ERR:', url, err);
+              msg.textContent = 'No se pudo completar el pedido, intentá de nuevo';
+              return false;
+            });
+        });
+      }
+
+      // el seek puede tardar varios segundos hasta encontrar una estacion
+      function buscarTEA(url) {
+        return enviarPulsoTEA(url, 'Buscando estación…', 20000);
+      }
+
+      function standbyTEA() {
+        return enviarPulsoTEA('/stand_by', 'Cambiando standby…');
       }
 
       function enviarValor() {
@@ -502,15 +646,17 @@ const char index_html[] PROGMEM = R"rawliteral(
           alert('La frecuencia debe estar entre 87.5 y 108 MHz');
           return;
         }
-        enviarPulsoTEA('/set_freq?v=' + f.toFixed(2))
-          .then(() => { document.getElementById('valorEntero').value = ''; });
+        enviarPulsoTEA('/set_freq?v=' + f.toFixed(2), 'Sintonizando ' + f.toFixed(2) + ' MHz…')
+          .then(ok => { if (ok) document.getElementById('valorEntero').value = ''; });
       }
 
       function sintonizarFina(delta) {
+        // se calcula recien aca, porque con el panel bloqueado ultimaFreq ya tiene la del pedido anterior
+        if (!grupoLibre('tea')) return;
         const nueva = Math.round((ultimaFreq + delta) * 100) / 100;
         const f = Math.min(108, Math.max(87.5, nueva));
-        enviarPulsoTEA('/set_freq?v=' + f.toFixed(2))
-          .then(() => { document.getElementById('valorEntero').value = f.toFixed(2); });
+        enviarPulsoTEA('/set_freq?v=' + f.toFixed(2), 'Sintonizando ' + f.toFixed(2) + ' MHz…')
+          .then(ok => { if (ok) document.getElementById('valorEntero').value = f.toFixed(2); });
       }
 
       // -------- Presets / Memorias EEPROM --------
@@ -519,13 +665,14 @@ const char index_html[] PROGMEM = R"rawliteral(
       let holdTriggered = false;
       let feedbackTimer = null;
 
-      function mostrarFeedbackPreset(msg, esError = false) {
+      function mostrarFeedbackPreset(msg, esError = false, fijo = false) {
         const el = document.getElementById('preset-feedback');
         if (!el) return;
         clearTimeout(feedbackTimer);
         el.textContent = msg;
         el.style.color = esError ? '#d93025' : '#188038';
-        feedbackTimer = setTimeout(() => { el.textContent = ''; }, 3500);
+        // Los mensajes de "en curso" quedan hasta que llega la respuesta
+        if (!fijo) feedbackTimer = setTimeout(() => { el.textContent = ''; }, 3500);
       }
 
       function renderPresetsUI(data) {
@@ -546,11 +693,7 @@ const char index_html[] PROGMEM = R"rawliteral(
       }
 
       function cargarPresets() {
-        return fetch('/api/presets')
-          .then(r => {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json();
-          })
+        return pedir('/api/presets')
           .then(data => renderPresetsUI(data))
           .catch(err => console.error('Error al cargar /api/presets:', err));
       }
@@ -565,21 +708,20 @@ const char index_html[] PROGMEM = R"rawliteral(
       }
 
       function seleccionarPreset(slot) {
-        mostrarFeedbackPreset('Sintonizando P' + (slot + 1) + ' (' + presetsList[slot].toFixed(2) + ' MHz)...');
-        fetch('/api/presets/select?slot=' + slot)
-          .then(r => {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json();
-          })
-          .then(data => {
-            renderTEA(data);
-            actualizarPresetActivo();
-            mostrarFeedbackPreset('P' + (slot + 1) + ' sintonizado: ' + presetsList[slot].toFixed(2) + ' MHz');
-          })
-          .catch(err => {
-            console.error('Error select preset:', err);
-            mostrarFeedbackPreset('Error al sintonizar preset', true);
-          });
+        return conBloqueo('tea', () => {
+          teaSeq++;
+          mostrarFeedbackPreset('Sintonizando P' + (slot + 1) + ' (' + presetsList[slot].toFixed(2) + ' MHz)...', false, true);
+          return pedir('/api/presets/select?slot=' + slot)
+            .then(data => {
+              renderTEA(data);
+              actualizarPresetActivo();
+              mostrarFeedbackPreset('P' + (slot + 1) + ' sintonizado: ' + presetsList[slot].toFixed(2) + ' MHz');
+            })
+            .catch(err => {
+              console.error('Error select preset:', err);
+              mostrarFeedbackPreset('Error al sintonizar preset', true);
+            });
+        });
       }
 
       function guardarPreset(slot, frecuencia) {
@@ -588,23 +730,21 @@ const char index_html[] PROGMEM = R"rawliteral(
           mostrarFeedbackPreset('Frecuencia fuera de rango (87.5 - 108 MHz)', true);
           return;
         }
-        mostrarFeedbackPreset('Guardando P' + (slot + 1) + ' (' + f.toFixed(2) + ' MHz)...');
-        fetch('/api/presets/save?slot=' + slot + '&freq=' + f.toFixed(2))
-          .then(r => {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json();
-          })
-          .then(data => {
-            presetsList[slot] = f;
-            const el = document.getElementById('preset-freq-' + slot);
-            if (el) el.textContent = f.toFixed(2);
-            actualizarPresetActivo();
-            mostrarFeedbackPreset('¡Guardado con éxito en P' + (slot + 1) + ' (' + f.toFixed(2) + ' MHz)!');
-          })
-          .catch(err => {
-            console.error('Error save preset:', err);
-            mostrarFeedbackPreset('Error al guardar preset', true);
-          });
+        return conBloqueo('tea', () => {
+          mostrarFeedbackPreset('Guardando P' + (slot + 1) + ' (' + f.toFixed(2) + ' MHz)...', false, true);
+          return pedir('/api/presets/save?slot=' + slot + '&freq=' + f.toFixed(2))
+            .then(data => {
+              presetsList[slot] = f;
+              const el = document.getElementById('preset-freq-' + slot);
+              if (el) el.textContent = f.toFixed(2);
+              actualizarPresetActivo();
+              mostrarFeedbackPreset('¡Guardado con éxito en P' + (slot + 1) + ' (' + f.toFixed(2) + ' MHz)!');
+            })
+            .catch(err => {
+              console.error('Error save preset:', err);
+              mostrarFeedbackPreset('Error al guardar preset', true);
+            });
+        });
       }
 
       function guardarPresetSeleccionado() {
@@ -615,6 +755,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 
       function iniciarPresionPreset(slot, ev) {
         holdTriggered = false;
+        if (!grupoLibre('tea')) return; // si hay un pedido en curso no guardamos
         const bar = document.getElementById('preset-bar-' + slot);
         if (bar) bar.classList.add('saving');
         clearTimeout(presetHoldTimer);
@@ -645,17 +786,28 @@ const char index_html[] PROGMEM = R"rawliteral(
         seleccionarPreset(slot);
       }
 
-      // -------- Consulta periódica del estado del TEA (solo con la TEA seleccionada) --------
+      // -------- Polling del estado del TEA (solo si esta elegida la TEA) --------
+      // Cada consulta se pide cuando termino la anterior (el ESP8266 tarda unos 200 ms en
+      // leer el TEA) y si hay un comando en curso se saltea, para no acumular pedidos.
+      function programarPolling() {
+        clearTimeout(teaTimer);
+        teaTimer = setTimeout(() => {
+          if (!pollingActivo) return;
+          const consulta = (ocupado.tea || ocupado.radio) ? Promise.resolve() : cargarEstadoTEA();
+          consulta.finally(() => { if (pollingActivo) programarPolling(); });
+        }, 500);
+      }
+
       function iniciarPolling() {
-        if (teaTimer) return;
-        teaTimer = setInterval(cargarEstadoTEA, 500);
+        if (pollingActivo) return;
+        pollingActivo = true;
+        programarPolling();
       }
 
       function detenerPolling() {
-        if (teaTimer) {
-          clearInterval(teaTimer);
-          teaTimer = null;
-        }
+        pollingActivo = false;
+        clearTimeout(teaTimer);
+        teaTimer = null;
       }
 
       // -------- Selección de radio (relé HL-51) --------
@@ -681,47 +833,52 @@ const char index_html[] PROGMEM = R"rawliteral(
 
       // Pide al ESP8266 la radio activa (o la cambia si se indica una); devuelve 'tea' o 'hex'
       function pedirRadio(radio) {
-        const ctrl = new AbortController();
-        const t = setTimeout(() => ctrl.abort(), 2000); // Sin respuesta en 2 s se toma como error
         const url = radio ? '/radio?radio=' + radio : '/radio';
-        return fetch(url, { signal: ctrl.signal })
-          .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
-          .then(txt => {
-            txt = txt.trim();
-            if (txt !== 'tea' && txt !== 'hex') throw new Error('Respuesta inválida: ' + txt);
-            return txt;
-          })
-          .finally(() => clearTimeout(t));
+        // Sin respuesta en 2 s se toma como error
+        return pedir(url, 2000, 'text').then(txt => {
+          txt = txt.trim();
+          if (txt !== 'tea' && txt !== 'hex') throw new Error('Respuesta inválida: ' + txt);
+          return txt;
+        });
       }
 
-      // Conmuta el relé y cambia el panel solo cuando el ESP8266 lo confirma
+      // Cambia el relé y el panel recien cuando el ESP8266 confirma.
+      // Mientras tanto se bloquean el selector y los botones de los dos paneles.
       function seleccionarRadio(radio) {
         const sel = document.getElementById('sel-radio');
         const msg = document.getElementById('sel-msg');
-        sel.disabled = true;
+        if (!grupoLibre('radio')) {
+          if (radioActual) sel.value = radioActual; // hay otro pedido en curso, no se cambia
+          return Promise.resolve();
+        }
         msg.textContent = '';
-        return pedirRadio(radio)
-          .then(activa => {
-            mostrarRadio(activa);
-            if (activa !== radio) msg.textContent = 'No se pudo cambiar de radio, intentá de nuevo';
-          })
-          .catch(err => {
-            console.error('ERR radio:', err);
-            msg.textContent = 'No se pudo cambiar de radio, intentá de nuevo';
-            if (radioActual) {
-              sel.value = radioActual; // Vuelve a la radio que estaba sonando
-              return;
-            }
-            // Primera carga: se pregunta qué radio está sonando realmente
-            return pedirRadio()
-              .then(mostrarRadio)
-              .catch(() => mostrarRadio('hex')); // Sin conexión: la radio con la que arranca la placa
-          })
-          .finally(() => { sel.disabled = false; });
+        return conBloqueo('radio', () =>
+          pedirRadio(radio)
+            .then(activa => {
+              mostrarRadio(activa);
+              if (activa !== radio) msg.textContent = 'No se pudo cambiar de radio, intentá de nuevo';
+            })
+            .catch(err => {
+              console.error('ERR radio:', err);
+              msg.textContent = 'No se pudo cambiar de radio, intentá de nuevo';
+              if (radioActual) {
+                sel.value = radioActual; // Vuelve a la radio que estaba sonando
+                return;
+              }
+              // Primera carga: se pregunta qué radio está sonando realmente
+              return pedirRadio()
+                .then(mostrarRadio)
+                .catch(() => mostrarRadio('hex')); // si no hay conexion mostramos la HEX, que es con la que arranca la placa
+            }));
       }
 
       // -------- Volumen y mute (X9C103S, común a ambas radios) --------
       let volTimer = null;
+      // Sube con cada pedido y cada vez que se mueve la barra. Solo mostramos una respuesta
+      // si despues no hubo otro pedido ni otro movimiento, asi una respuesta vieja
+      // no hace saltar la barra mientras la estas moviendo.
+      let volSeq = 0;
+
       function renderVol(estado) {
         // El firmware responde {"volume": N, "muted": bool}
         estado = { volumen: estado.volume, mute: !!estado.muted };
@@ -733,7 +890,9 @@ const char index_html[] PROGMEM = R"rawliteral(
         btn.classList.toggle('activo', estado.mute);
       }
       function pedirVol(url) {
-        return fetch(url).then(r => r.json()).then(renderVol)
+        const seq = ++volSeq;
+        return pedir(url)
+          .then(estado => { if (seq === volSeq) renderVol(estado); })
           .catch(err => console.error('ERR volumen:', err));
       }
       function enviarVolumen(v) {
@@ -742,12 +901,15 @@ const char index_html[] PROGMEM = R"rawliteral(
         volTimer = setTimeout(() => pedirVol('/volumen?v=' + v), 120);
       }
       function alternarMute() {
-        clearTimeout(volTimer);
-        pedirVol('/mute');
+        return conBloqueo('mute', () => {
+          clearTimeout(volTimer);
+          return pedirVol('/mute');
+        });
       }
       function iniciarVolumen() {
         const vol = document.getElementById('vol');
         vol.addEventListener('input', () => {
+          volSeq++; // lo que estaba en camino ya no sirve
           // Mover el volumen quita el mute
           renderVol({ volume: parseInt(vol.value, 10), muted: false });
           enviarVolumen(vol.value);
@@ -763,7 +925,7 @@ const char index_html[] PROGMEM = R"rawliteral(
         // Se muestra la radio que está sonando según el ESP8266, sin conmutar el relé
         pedirRadio()
           .then(mostrarRadio)
-          .catch(() => mostrarRadio('hex')); // Sin conexión: la radio con la que arranca la placa
+          .catch(() => mostrarRadio('hex')); // si no hay conexion mostramos la HEX, que es con la que arranca la placa
       });
     </script>
   </body>

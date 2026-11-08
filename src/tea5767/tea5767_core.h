@@ -92,7 +92,7 @@ extern "C" {
   void tea5767_print(const char *msg);
 
   void tea5767_awake();
-  void tea5767_retune(); // Reenvía la configuración actual (misma sintonía exacta)
+  void tea5767_retune(); // Reenvía la configuración actual (misma frecuencia)
   void tea5767_get_default_config(tea5767_config_t *config);
   void tea5767_get_info(tea5767_info_t *info);
   void tea5767_configure(tea5767_config_t *config);

@@ -1,8 +1,8 @@
-#include "HTTPGeneral.h"
-#include "HandlerHEX3653.h"
-#include "HandlerTEA5767.h"
-#include "HandlerX9C103S.h"
-#include "HandlerPresets.h"
+#include "src/servidor/HTTPGeneral.h"
+#include "src/hex3653/HandlerHEX3653.h"
+#include "src/tea5767/HandlerTEA5767.h"
+#include "src/x9c103s/HandlerX9C103S.h"
+#include "src/tea5767/HandlerPresets.h"
 
 void setup() {
   Serial.begin(115200);
@@ -15,7 +15,7 @@ void setup() {
 
   HTTP_init();
 
-  hex_encender_al_inicio(); // Pulso PSW solo si se alimentó el sistema desde cero
+  hex_encender_al_inicio(); // Prende la HEX solo si la placa se acaba de enchufar
 }
 
 // ---------------- Comandos de prueba por Monitor Serie ----------------
@@ -23,7 +23,7 @@ void setup() {
 // '0'..'9'   -> volumen 0% .. 90%
 // '+' / '-'  -> sube / baja 5 puntos la ganancia de la TEA (para igualarla de oído con la HEX)
 // 's'        -> alterna el standby del TEA
-// 'u'        -> Seek ↑ del TEA
+// 'u'        -> seek up del TEA
 // 'i'        -> imprime el estado del TEA
 // 'r'        -> imprime los 5 bytes crudos que devuelve el TEA (I2C 0x60)
 // 'p'        -> imprime los presets guardados (EEPROM)

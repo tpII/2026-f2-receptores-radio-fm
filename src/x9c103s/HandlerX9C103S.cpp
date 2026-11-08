@@ -1,5 +1,5 @@
 #include "HandlerX9C103S.h"
-#include "HTTPGeneral.h"
+#include "../servidor/HTTPGeneral.h"
 
 static int  posicion = 0;            // Posición actual del cursor (0 a POT_PASOS)
 static int  volumen = POT_INICIAL;   // Volumen elegido (en %), se conserva durante el mute
@@ -24,8 +24,10 @@ static void pot_mover(bool subir, int pasos) {
     digitalWrite(POT_INC, HIGH);
     delayMicroseconds(5);
   }
-  // Se sube CS con INC en LOW para que el chip NO grabe la posición en su memoria
-  // no volátil (tiene escrituras limitadas y en cada arranque se recalibra desde 0)
+  // Para terminar deshabilitamos el chip (POT_CS en HIGH) mientras el pin de pasos
+  // (POT_INC) esta en LOW. Si POT_INC estuviera en HIGH, el chip guardaria la posicion en su memoria,
+  // y no queremos eso porque se puede grabar pocas veces y en cada arranque igual se
+  // calibra desde 0.
   digitalWrite(POT_INC, LOW);
   delayMicroseconds(5);
   digitalWrite(POT_CS, HIGH);
@@ -61,7 +63,7 @@ void pot_toggle_mute() {
 
 // ---------------- Compensación entre radios ----------------
 
-// Reaplica el volumen actual (respetando el mute) con la ganancia que corresponda
+// Vuelve a poner el volumen actual con la ganancia que corresponda (respeta el mute)
 static void pot_reaplicar() {
   if (iniciado) pot_aplicar(silenciado ? 0 : volumen);
 }
@@ -110,7 +112,7 @@ void potfunc_init() {
   digitalWrite(POT_CS, HIGH);
   digitalWrite(POT_INC, HIGH);
 
-  // No se conoce la posición guardada: se lleva el cursor al mínimo para calibrar
+  // No sabemos en que posicion quedo, asi que lo bajamos al minimo para calibrar
   pot_mover(false, POT_PASOS + 1);
   posicion = 0;
   iniciado = true;
